@@ -1,23 +1,8 @@
 #include <fstream>
 #include <iostream>
-
-int runFile(char* fileName);
-
-int runPrompt(void);
+#include "loxi.hh"
 
 int main(int argc, char** argv)
 {
-    return (argc > 1) ? runFile(argv[1]) : runPrompt();
-}
-
-int runFile(char* fileName)
-{
-    std::cout << fileName << std::endl;
-    return 0;
-}
-
-int runPrompt()
-{
-    std::cout << "this is the prompt" << std::endl;
-    return 0;
+    return (argc > 1) ? Lox::LoxI::run_file(argv[1]) : Lox::LoxI::run_prompt();
 }
