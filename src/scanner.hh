@@ -19,6 +19,11 @@ class Scanner {
     bool peek(char next_char);
     void add_single(TokenType token_type, std::string token_name);
     void add_double(TokenType token_type, std::string token_name);
+    void handle_comment();
+    void handle_numeric_literal();
+    void handle_string_literal();
+
+    void throw_scanner_error(std::string message);
 
 public:
     Scanner(const std::string& source) : source(source) {}

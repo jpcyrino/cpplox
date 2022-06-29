@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 #include "scanner.hh"
 
 namespace Lox
@@ -54,7 +55,7 @@ void Scanner::get_token()
             add_single(MINUS, "symbol '-'");
             break;
         case '/':
-            add_single(SLASH, "symbol '/'");
+            peek('/') ? handle_comment() : add_single(SLASH, "symbol '/'");
             break;
         case '*':
             add_single(STAR, "symbol '*'");
@@ -70,6 +71,9 @@ void Scanner::get_token()
             break;
         case '<':
             peek('=') ? add_double(LESS_EQUAL, "symbol '<='") : add_single(LESS, "symbol '<'");
+            break;
+        case '"':
+            handle_string_literal();
             break;
         default:
             break;
@@ -97,6 +101,39 @@ bool Scanner::peek(char next_char)
     return false;
 }
 
+void Scanner::handle_comment()
+{
+    while(!peek('\n'))
+    {
+        if(position >= source.size()) break;
+        start++;
+        position++;       
+    }
+}
+
+void Scanner::handle_string_literal()
+{
+    position++;
+    start = position;
+    while(source[position] != '"')
+    {
+        position++;
+        if(position >= source.size())
+        {
+            throw_scanner_error("Missing trailing \" at string literal");
+            return;
+        }
+    }
+    std::string string_literal = source.substr(start, position-start);
+    tokens.push_back(Token(STRING, string_literal, "string literal '" + string_literal + "'", current_line));
+    start = position + 1;
+}
+
+
+void Scanner::throw_scanner_error(std::string message)
+{
+    std::cout << "Scanner error at line " << current_line << ": " << message << std::endl;
+}
 
 
 

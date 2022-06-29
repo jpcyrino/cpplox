@@ -1,2 +1,2 @@
 @echo off
-g++ src/*.cc -o build/build.exe
+g++ src/*.cc -o build/cpplox.exe
