@@ -3,6 +3,8 @@
 #include <sstream>
 #include <string>
 #include "loxi.hh"
+#include "token.hh"
+#include "scanner.hh"
 
 namespace Lox
 {
@@ -15,7 +17,8 @@ int LoxI::run_file(char* file_name)
         os << (char) script.get();
     }
     script.close();
-    run(os.str());
+    std::string script_code = os.str();
+    run(script_code);
     return 0;
 }
 
@@ -31,9 +34,14 @@ int LoxI::run_prompt()
     return 0;
 }
 
-void LoxI::run(std::string source)
+void LoxI::run(std::string& source)
 {
-    std::cout << source << std::endl;
+    auto s = Scanner(source);
+    s.start_scan();
+    for(Token t : s.get_tokens())
+    {
+        std::cout << "Token is " << t.get_message() << " line " << t.get_line() << std::endl;
+    }
 }
 
 }

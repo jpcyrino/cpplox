@@ -9,7 +9,7 @@ struct LoxI {
     static int run_file(char* file_name);
     static int run_prompt();
 private:
-    static void run(std::string source);
+    static void run(std::string& source);
 };
 
 }
