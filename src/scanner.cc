@@ -162,7 +162,6 @@ void Scanner::handle_numeric_literal()
     std::string number_literal = source.substr(start, position-start);
     double numeric_value = std::stod(number_literal);
     tokens.push_back(Token(NUMBER, numeric_value, "number literal " + number_literal, current_line));
-    //std::cout << "found number " << source.substr(start, position-start) << " at line " << current_line << std::endl;
     start = position;
 }
 
