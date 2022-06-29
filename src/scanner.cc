@@ -76,6 +76,8 @@ void Scanner::get_token()
             handle_string_literal();
             break;
         default:
+            handle_numeric_literal();
+            handle_lexical_item();
             break;
     }
 
@@ -133,10 +135,42 @@ void Scanner::handle_string_literal()
 void Scanner::throw_scanner_error(std::string message)
 {
     std::cout << "Scanner error at line " << current_line << ": " << message << std::endl;
+    position = source.size();
 }
 
+bool Scanner::is_number()
+{
+    return (source[position] >= '0') && (source[position] <= '9');
+}
 
+void Scanner::handle_numeric_literal()
+{
+    if(!is_number()) return;
+    bool found_decimal = false;
+    while(is_number())
+    {
+        if(peek('.')){
+            position++;
+            if(found_decimal) {
+                throw_scanner_error("invalid numeric literal " + source.substr(start,position-start+1));
+                return;
+            }
+            found_decimal = true;
+        }
+        position++;
+    }
+    std::string number_literal = source.substr(start, position-start);
+    double numeric_value = std::stod(number_literal);
+    tokens.push_back(Token(NUMBER, numeric_value, "number literal " + number_literal, current_line));
+    //std::cout << "found number " << source.substr(start, position-start) << " at line " << current_line << std::endl;
+    start = position;
+}
 
+void Scanner::handle_lexical_item()
+{
+    if(is_number()) return;
+    start++;
+}
 
 
 

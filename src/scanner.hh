@@ -17,11 +17,13 @@ class Scanner {
 
     void get_token();
     bool peek(char next_char);
+    bool is_number();
     void add_single(TokenType token_type, std::string token_name);
     void add_double(TokenType token_type, std::string token_name);
     void handle_comment();
     void handle_numeric_literal();
     void handle_string_literal();
+    void handle_lexical_item();
 
     void throw_scanner_error(std::string message);
 
