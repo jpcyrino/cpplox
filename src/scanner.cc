@@ -1,5 +1,5 @@
-#include <iostream>
 #include <string>
+#include <iostream>
 #include "scanner.hh"
 
 namespace Lox
@@ -10,7 +10,6 @@ void Scanner::start_scan()
     while(position < source.size())
     {
         get_token();
-        position++;
     }
 }
 
@@ -20,12 +19,12 @@ void Scanner::get_token()
     {
         case '\n':
             current_line++;
-            start++;
+            position++;
             break;
         case ' ':
         case '\t':
         case '\r':
-            start++;
+            position++;
             break;
         case '(': 
             add_single(LEFT_PAREN, "symbol '('");
@@ -76,7 +75,6 @@ void Scanner::get_token()
             handle_string_literal();
             break;
         default:
-            handle_numeric_literal();
             handle_lexical_item();
             break;
     }
@@ -85,15 +83,14 @@ void Scanner::get_token()
 
 void Scanner::add_single(TokenType token_type, std::string token_name)
 {
-    tokens.push_back(Token(token_type, token_name, current_line));
-    start++;
+    tokens.emplace_back(Token(token_type, std::move(token_name), current_line));
+    position++;
 }
 
 void Scanner::add_double(TokenType token_type, std::string token_name)
 {
-    add_single(token_type, token_name);
-    start++;
-    position++;
+    add_single(token_type, std::move(token_name));
+    position += 2;
 }
 
 bool Scanner::peek(char next_char)
@@ -108,70 +105,87 @@ void Scanner::handle_comment()
     while(!peek('\n'))
     {
         if(position >= source.size()) break;
-        start++;
         position++;       
     }
 }
 
 void Scanner::handle_string_literal()
 {
+    buffer = "";
     position++;
-    start = position;
     while(source[position] != '"')
     {
-        position++;
         if(position >= source.size())
         {
-            throw_scanner_error("Missing trailing \" at string literal");
+            // TODO: proper error handler
+            std::cout << "Error line " << current_line << ": missing trailing \" for string.\n";
             return;
         }
+        buffer += source[position];
+        position++;
     }
-    std::string string_literal = source.substr(start, position-start);
-    tokens.push_back(Token(STRING, string_literal, "string literal '" + string_literal + "'", current_line));
-    start = position + 1;
-}
-
-
-void Scanner::throw_scanner_error(std::string message)
-{
-    std::cout << "Scanner error at line " << current_line << ": " << message << std::endl;
-    position = source.size();
+    position++;
+    tokens.emplace_back(Token(STRING, buffer, "string literal '" + buffer + "'", current_line));
 }
 
 bool Scanner::is_number()
 {
-    return (source[position] >= '0') && (source[position] <= '9');
+    return source[position] >= 0 && source[position] <= 9;
 }
 
-void Scanner::handle_numeric_literal()
+bool Scanner::is_separator()
 {
-    if(!is_number()) return;
-    bool found_decimal = false;
-    while(is_number())
+    switch(source[position])
     {
-        if(peek('.')){
-            position++;
-            if(found_decimal) {
-                throw_scanner_error("invalid numeric literal " + source.substr(start,position-start+1));
-                return;
-            }
-            found_decimal = true;
-        }
-        position++;
+        case ' ':
+        case '\t':
+        case '\r':
+        case '\n':
+        case '(':
+        case ')':
+        case '{':
+        case '}':
+        case ';':
+        case '.':
+        case '+':
+        case '-':
+        case '*':
+        case '/':
+        case '=':
+        case '!':
+        case '>':
+        case '<':
+            return true;
+        default:
+            return false;
     }
-    std::string number_literal = source.substr(start, position-start);
-    double numeric_value = std::stod(number_literal);
-    tokens.push_back(Token(NUMBER, numeric_value, "number literal " + number_literal, current_line));
-    start = position;
 }
 
 void Scanner::handle_lexical_item()
 {
-    if(is_number()) return;
-    start++;
+    if(is_number())
+    {
+        handle_numeric_literal();
+        return;
+    }
+    buffer = "";
+    while(!is_separator())
+    {
+        if(position >= source.size()) break;
+        buffer += source[position];
+        position++;
+    }
+    add_lexical_item(buffer);
 }
 
+void Scanner::handle_numeric_literal()
+{
 
+}
 
+void Scanner::add_lexical_item(const std::string &item)
+{
+
+}
 
 }

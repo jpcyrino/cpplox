@@ -31,11 +31,11 @@ class Token {
     const int line;
 public:
     Token(TokenType token, std::string token_name, int line) : 
-        type(token), name(token_name), line(line), numeric_value(0) {}
+        type(token), name(std::move(token_name)), line(line), numeric_value(0) {}
     Token(TokenType token, double value, std::string token_name, int line) : 
-        type(token), name(token_name), line(line), numeric_value(value) {}
+        type(token), name(std::move(token_name)), line(line), numeric_value(value) {}
     Token(TokenType token, std::string value, std::string token_name, int line) :
-        type(token), name(token_name), line(line), numeric_value(0), string_value(value) {}
+        type(token), name(std::move(token_name)), line(line), numeric_value(0), string_value(std::move(value)) {}
     TokenType get_type() const { return type; }
     std::string get_message() const { return name; }
     int get_line() const { return line; }

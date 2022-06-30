@@ -2,3 +2,4 @@
 build/
 *.exe
 *.lox
+/cmake-build-debug/
