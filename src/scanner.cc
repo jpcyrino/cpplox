@@ -130,7 +130,7 @@ void Scanner::handle_string_literal()
 
 bool Scanner::is_number()
 {
-    return source[position] >= 0 && source[position] <= 9;
+    return (source[position] >= '0') && (source[position] <= '9');
 }
 
 bool Scanner::is_separator()
@@ -155,6 +155,7 @@ bool Scanner::is_separator()
         case '!':
         case '>':
         case '<':
+        case '"':
             return true;
         default:
             return false;
@@ -180,12 +181,33 @@ void Scanner::handle_lexical_item()
 
 void Scanner::handle_numeric_literal()
 {
-
+    bool first_dot = false;
+    buffer = "";
+    while (is_number())
+    {
+        buffer += source[position];
+        if (peek('.') && !first_dot) {
+            first_dot = true;
+            position++;
+            buffer += source[position];
+        }
+        position++;
+    }
+    tokens.emplace_back(NUMBER, std::stod(buffer), "numeric literal " + buffer, current_line);
 }
 
-void Scanner::add_lexical_item(const std::string &item)
+void Scanner::add_lexical_item(std::string item)
 {
-
+    for (auto& c : item) c = std::toupper(c);
+    
+    try
+    {
+        add_single(keywords.at(item), "keyword " + item);
+    }
+    catch (std::out_of_range e)
+    {
+        tokens.emplace_back(IDENTIFIER, item, "identifier " + item, current_line);
+    }
 }
 
 }

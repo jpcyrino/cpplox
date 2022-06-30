@@ -38,7 +38,7 @@ void LoxI::run(std::string& source)
 {
     auto s = Scanner(source);
     s.start_scan();
-    for(const Token& t : s.get_tokens())
+    for(auto& t : s.get_tokens())
     {
         std::cout << "Token is " << t.get_message() << " line " << t.get_line() << std::endl;
     }
